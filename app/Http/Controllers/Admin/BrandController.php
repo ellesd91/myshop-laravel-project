@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use Illuminate\Http\Request;
-use Hekmatinasser\Verta\Verta; // این خط را در بالای فایل خود use کنید
+use Hekmatinasser\Verta\Verta;
 
 class BrandController extends Controller
 {
@@ -14,10 +14,10 @@ class BrandController extends Controller
      */
     public function index()
     {
-         // برندها را از دیتابیس می‌گیریم (جدیدترین‌ها در ابتدا) و صفحه‌بندی می‌کنیم
+
         $brands = Brand::latest()->paginate(10);
 
-        // متغیر brands را به view پاس می‌دهیم
+
         return view('admin.brands.index', compact('brands'));
     }
 

@@ -7,6 +7,10 @@ window.jQuery = window.$ = $;
 import 'bootstrap';
 import 'jquery.easing';
 import '@fortawesome/fontawesome-free/css/all.min.css'; // (اگر از روش npm برای فونت آسام استفاده کردید)
+import 'bootstrap-select';
+import 'bootstrap-select/dist/css/bootstrap-select.min.css';
+import 'bootstrap-select/dist/js/i18n/defaults-fa_IR.js';
+import './category-form';
 
 import Swal from 'sweetalert2';
 
@@ -21,4 +25,9 @@ if (swalSuccess) {
     });
 }
 
+//  $(function() {
+//             $('#attributeSelect').selectpicker({
+//                 'title' : 'انتخاب ویژگی'
+//             });
+//         });
 

@@ -156,6 +156,10 @@ return [
         'newpassword_confirmation' => 'تکرار رمز عبور جدید',
         'longitude'             => 'طول جغرافیایی',
         'latitude'              => 'عرض جغرافیایی',
+        'slug'                  =>'نام انگلیسی' ,
+        'variation_id'         => 'انتخاب ویژگی متغیر',
+        'attribute_is_filter_ids'=> 'انتخاب ویژگی های قابل فیلتر',
+        'attribute_ids'    =>  'ویژگی',
     ],
 
 ];

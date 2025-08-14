@@ -22,6 +22,7 @@ class Brand extends Model
     protected $table = 'brands';
 
     protected $guarded =[];
+
     public function getIsActiveAttribute($is_active)
 {
     return $is_active ? 'فعال' : 'غیرفعال';

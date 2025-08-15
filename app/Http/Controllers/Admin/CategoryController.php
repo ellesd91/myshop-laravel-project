@@ -102,7 +102,16 @@ class CategoryController extends Controller
         $parentCategories = Category::where('parent_id', 0)->get();
         $attributes = Attribute::all();
 
-        return view('admin.categories.edit', compact('category', 'parentCategories', 'attributes'));
+         $categoryFilterableAttributeIds = $category->attributes()->wherePivot('is_filter', 1)->pluck('id')->toArray();
+         $categoryVariationAttributeId = $category->attributes()->wherePivot('is_variation', 1)->first()->id ?? null;
+
+    return view('admin.categories.edit', compact(
+        'category',
+        'parentCategories',
+        'attributes',
+        'categoryFilterableAttributeIds', // ارسال متغیر جدید به ویو
+        'categoryVariationAttributeId'    // ارسال متغیر جدید به ویو
+    ));
     }
 
     /**

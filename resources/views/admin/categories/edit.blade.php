@@ -68,18 +68,23 @@
                     {{-- Filterable Attributes --}}
                     <div class="form-group col-md-3">
                         <label for="attributeIsFilterSelect">ویژگی‌های قابل فیلتر</label>
-                        <select id="attributeIsFilterSelect" name="attribute_is_filter_ids[]" class="form-control selectpicker" multiple data-live-search="true" title="ویژگی‌های قابل فیلتر را انتخاب کنید...">
+                        <select id="attributeIsFilterSelect" name="attribute_is_filter_ids[]" class="form-control selectpicker" multiple
+                            data-live-search="true" title="ویژگی‌های قابل فیلتر را انتخاب کنید..."
+                            data-selected-ids="{{ json_encode($categoryFilterableAttributeIds) }}">
                             {{-- گزینه‌ها با جاوااسکریپت پر می‌شوند --}}
                         </select>
                     </div>
 
-                    {{-- Variation Attribute --}}
                     <div class="form-group col-md-3">
                         <label for="variationsSelect">ویژگی متغیر</label>
-                        <select id="variationsSelect" name="variation_id" class="form-control selectpicker" data-live-search="true" title="ویژگی متغیر را انتخاب کنید...">
-                           {{-- گزینه‌ها با جاوااسکریپت پر می‌شوند --}}
+                        <select id="variationsSelect" name="variation_id" class="form-control selectpicker" data-live-search="true"
+                            title="ویژگی متغیر را انتخاب کنید..."
+                            data-selected-id="{{ $categoryVariationAttributeId }}">
+                            {{-- گزینه‌ها با جاوااسکریپت پر می‌شوند --}}
                         </select>
                     </div>
+                                        {{-- Variation Attribute --}}
+
 
                      {{-- Icon --}}
                      <div class="form-group col-md-3">

@@ -8,6 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
+
   <title>Webprog.ir @yield('title') </title>
 
   @vite(['resources/scss/admin/admin.scss', 'resources/js/admin/admin.js'])
@@ -66,6 +67,8 @@
   @include('admin.sections.scroll_top')
 
   @yield('script')
+  @stack('scripts') این خط باید به stack تغییر کند
+  @stack('styles')
 </body>
 
 </html>

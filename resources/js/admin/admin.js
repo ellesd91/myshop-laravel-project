@@ -11,6 +11,24 @@ import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 import 'bootstrap-select/dist/js/i18n/defaults-fa_IR.js';
 import './category-form';
+import './product';
+import './files/jquery.czMore-latest.js';
+
+$(function () {
+  const $cz = $('#czContainer');
+  console.log('czMore?', typeof $.fn.czMore, 'container:', $cz.length);
+
+  if ($cz.length && typeof $.fn.czMore === 'function') {
+    $cz.czMore({
+      max: 20,
+      min: 0,
+      styleOverride: true, // استایل پیشفرض پلاگین خاموش؛ آیکن‌ها را با CSS می‌دهیم
+      onLoad(i){ console.log('cz onLoad', i); },
+      onAdd(i){ console.log('cz onAdd', i); },
+      onDelete(i){ console.log('cz onDelete', i); },
+    });
+  }
+});
 
 import Swal from 'sweetalert2';
 
@@ -24,10 +42,4 @@ if (swalSuccess) {
         confirmButtonText: 'باشه'
     });
 }
-
-//  $(function() {
-//             $('#attributeSelect').selectpicker({
-//                 'title' : 'انتخاب ویژگی'
-//             });
-//         });
 

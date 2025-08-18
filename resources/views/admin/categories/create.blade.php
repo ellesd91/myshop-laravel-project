@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-xl-12 col-md-12 mb-4 p-md-5 bg-white">
             <div class="mb-4">
-                <h5 class="font-weight-bold">ایجاد ویژگی</h5>
+                <h5 class="font-weight-bold">ایجاد دسته بندی</h5>
             </div>
                 <hr>
                 @include('admin.sections.errors')

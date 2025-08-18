@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/scss/admin/admin.scss',
                 'resources/js/app.js',
                 'resources/js/admin/admin.js',
-                'resources/js/dashboard.js' // <-- این خط مهم اضافه شد
+                'resources/js/dashboard.js',
             ],
             refresh: true,
         }),

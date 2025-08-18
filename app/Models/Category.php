@@ -26,10 +26,18 @@ class Category extends Model
         return $this->hasMany(Category::class, 'parent_id');
     }
 
+
+
     public function attributes()
-    {
-        return $this->belongsToMany(Attribute::class, 'attribute_category');
-    }
+{
+    // اگر نام جدول pivot شما چیز دیگری است (مثلاً category_attribute)
+    // دومین آرگومان را همان نام بگذارید:
+    // return $this->belongsToMany(\App\Models\Attribute::class, 'category_attribute', 'category_id', 'attribute_id');
+
+    return $this->belongsToMany(\App\Models\Attribute::class, 'attribute_category', 'category_id', 'attribute_id');
+}
+
+
 
 
 }

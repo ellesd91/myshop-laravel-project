@@ -160,6 +160,10 @@ return [
         'variation_id'         => 'انتخاب ویژگی متغیر',
         'attribute_is_filter_ids'=> 'انتخاب ویژگی های قابل فیلتر',
         'attribute_ids'    =>  'ویژگی',
+        'brand_id'         => 'برند',
+        'variation_values.price.*' => 'قیمت ویژگی متغیر',
+        'variation_values.quantity.*' => 'مقدار ویژگی متغیر',
+        'tag_ids' => 'تگ‌ها',
     ],
 
 ];

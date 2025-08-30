@@ -23,4 +23,12 @@
         "jquery.easing": "^1.4.1",
         "sweetalert2": "^11.22.3"
     }
+    "autoload": {
+    "psr-4": {
+        "App\\": "app/"
+    },
+    "files": [
+        "app/helpers.php"
+    ]
+}
 }

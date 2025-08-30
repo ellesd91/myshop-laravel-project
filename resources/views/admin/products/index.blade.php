@@ -30,6 +30,7 @@
                                 <td>{{ $products->firstItem() + $key }}</td>
                                 <td>{{ $product->name }}</td>
                                 <td>{{ $product->brand->name }}</td>
+
                                 <td>{{ $product->category->name }}</td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-warning" href="{{route('admin.products.show' , ['product' => $product->id])}}">نمایش</a>

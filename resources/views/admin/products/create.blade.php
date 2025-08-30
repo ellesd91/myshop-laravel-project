@@ -37,7 +37,7 @@
                     </div>
                     <div class="form-group col-md-3">
                         <label for="tag_ids">تگ‌ها</label>
-                        <select id="tag_ids" name="tag_ids[]" class="form-control selectpicker" multiple data-live-search="true" title="انتخاب تگ‌ها">
+                        <select id="tag_ids" name="tag_ids[]" class="form-control selectpicker" multiple data-live-search="true" title="انتخاب تگ‌ها" value="{{ old('tag_ids') }}">
                             @foreach ($tags as $tag)
                                 <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                             @endforeach
@@ -54,13 +54,13 @@
                         <label for="primary_image">تصویر اصلی</label>
                         <div class="custom-file">
                             <input type="file" name="primary_image" class="custom-file-input" id="primary_image">
-                            <label class="custom-file-label" for="primary_image"> انتخاب فایل </label>
+                            <label class="custom-file-label" for="primary_image" > انتخاب فایل </label>
                         </div>
                     </div>
                     <div class="form-group col-md-3">
                         <label for="images"> انتخاب تصاویر</label>
                         <div class="custom-file">
-                            <input type="file" name="images[]" multiple class="custom-file-input" id="images">
+                            <input type="file" name="images[]" multiple class="custom-file-input" id="images" >
                             <label class="custom-file-label" for="images"> انتخاب فایل‌ها </label>
                         </div>
                     </div>
@@ -100,19 +100,19 @@
                                     <div class="row">
                                         <div class="col-12 col-md-3 mb-3 form-group">
                                         <label class="form-label" for="value">نام</label>
-                                        <input type="text" class="form-control" name="variation_values[value][]" >
+                                        <input type="text" class="form-control" name="variation_values[value][]" value="{{ old('variation_values.value.0') }}">
                                         </div>
                                         <div class="col-12 col-md-3 mb-3 form-group">
                                         <label class="form-label" for="price">قیمت</label>
-                                        <input type="text" class="form-control" name="variation_values[price][]">
+                                        <input type="text" class="form-control" name="variation_values[price][]" value="{{ old('variation_values.price.0') }}">
                                         </div>
                                         <div class="col-12 col-md-3 mb-3 form-group">
                                         <label class="form-label">تعداد</label>
-                                        <input type="text" class="form-control" name="variation_values[quantity][]" >
+                                        <input type="text" class="form-control" name="variation_values[quantity][]" value="{{ old('variation_values.quantity.0') }}">
                                         </div>
                                         <div class="col-12 col-md-3 mb-3 form-group">
                                         <label class="form-label">شناسه انبار</label>
-                                        <input type="text" class="form-control" name="variation_values[sku][]">
+                                        <input type="text" class="form-control" name="variation_values[sku][]" value="{{ old('variation_values.sku.0') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -130,12 +130,12 @@
                 <div class="row">
                     <div class="form-group col-12 col-md-3">
                         <label for="delivery_amount">هزینه ارسال</label>
-                        <input class="form-control" id="delivery_amount" name="delivery_amount" type="text" {{ old('delivery_amount') }}>
+                        <input class="form-control" id="delivery_amount" name="delivery_amount" type="text" value="{{ old('delivery_amount') }}">
                     </div>
 
                     <div class="form-group col-12 col-md-3">
                         <label for="delivery_amount_per_product">هزینه ارسال به ازای محصول اضافی</label>
-                          <input class="form-control" id="delivery_amount_per_product" name="delivery_amount_per_product" type="text" {{ old('delivery_amount_per_product') }}>
+                          <input class="form-control" id="delivery_amount_per_product" name="delivery_amount_per_product" type="text" value="{{ old('delivery_amount_per_product') }}">
 
                     </div>
                 </div>

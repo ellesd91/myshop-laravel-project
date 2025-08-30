@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductImageController;
 
 Route::get('/admin-panel/dashboard', function () {
     return view('admin.dashboard');
@@ -19,12 +20,18 @@ Route::resource('attributes', AttributeController::class);
 Route::resource('categories', CategoryController::class);
 Route::resource('tags', TagController::class);
 Route::resource('products', ProductController::class);
-
-//get category attribute
-// route::get('/category-attributes/{category}',[CategoryController::class , 'getCategoryAttributes']);
-// Route::get('/products/get-category-attributes/{category}', [ProductController::class, 'getCategoryAttributes'])
-//         ->name('products.get_category_attributes');
 Route::get('/category-attributes/{category}', [CategoryController::class, 'getCategoryAttributes']);
+    // // آپلود تصویر اصلی و/یا گالری برای یک محصول مشخص
+    // Route::post('products/{product}/images', [ProductImageController::class, 'upload'])
+    //     ->name('products.images.upload');
+
+    // // حذف تصویر اصلی
+    // Route::delete('products/{product}/image', [ProductImageController::class, 'destroyPrimary'])
+    //     ->name('products.images.destroyPrimary');
+
+    // // حذف یک تصویر از گالری بر اساس filename
+    // Route::delete('products/{product}/gallery-image', [ProductImageController::class, 'destroy'])
+    //     ->name('products.images.destroy');
 });
 
 

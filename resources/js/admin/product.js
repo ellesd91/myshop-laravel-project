@@ -9,6 +9,16 @@ try {
 $(function () {
   console.log('[product.js] ready');
 
+  /* --- فقط این بخش جدید برای نمایش نام فایل‌ها اضافه شد --- */
+  $('.custom-file-input').on('change', function () {
+    const files = Array.from(this.files || []);
+    const label = files.length
+      ? files.map(f => f.name).join('، ')
+      : 'انتخاب فایل';
+    $(this).next('.custom-file-label').text(label);
+  });
+  /* --------------------------------------------------------- */
+
   const $sel   = $('#categorySelect');
   const $attrs = $('#attributes_section');     // باکس ویژگی‌ها
   const $wrap  = $('#attributesContainer');    // عنوان + czContainer

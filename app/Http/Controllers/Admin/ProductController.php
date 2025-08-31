@@ -88,8 +88,20 @@ class ProductController extends Controller
             'image' => $fileNameImage,
         ]);
     }
+    $ids  = $request->input('attribute_ids', []);
+    $vals = $request->input('attributes_section', []);
+
+    $attrs = [];
+    foreach ($ids as $i => $id) {
+        $val = $vals[$i] ?? null;
+        if ($id === null || $val === null || $val === '') continue;
+        $attrs[$id] = $val; // کلید = ID ویژگی، مقدار = متن واردشده
+    }
     $productAttributeController = new ProductAttributeController();
-    $productAttributeController->store($request->attribute_ids, $product);
+    $productAttributeController->store($attrs, $product);
+
+
+
 
     }
 

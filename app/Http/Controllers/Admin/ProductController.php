@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Models\ProductAttribute;
+use App\Models\ProductVariation;
 
 class ProductController extends Controller
 {
@@ -99,6 +100,39 @@ class ProductController extends Controller
     }
     $productAttributeController = new ProductAttributeController();
     $productAttributeController->store($attrs, $product);
+
+
+    // 1) گرفتن attribute متغیّر از دسته‌بندی انتخابی
+    $variationAttr = Category::findOrFail($request->category_id)
+        ->attributes()
+        ->wherePivot('is_variation', 1)
+        ->first();
+
+    $variationAttributeId = $variationAttr?->id;
+
+    // 2) گرفتن مقادیر ورودی فرم
+    $values   = $request->input('variation_values.value', []);
+    $prices   = $request->input('variation_values.price', []);
+    $qtys     = $request->input('variation_values.quantity', []);
+    $skus     = $request->input('variation_values.sku', []);
+
+    // 3) ذخیره در جدول product_variations
+    $counter = count($values);
+
+    for ($i = 0; $i < $counter; $i++) {
+        if (($values[$i] ?? '') === '') {
+            continue; // ردیف خالی رد شود
+        }
+
+        ProductVariation::create([
+            'product_id'   => $product->id,          // محصولی که همین الان ساخته شد
+            'attribute_id' => $variationAttributeId, // attribute متغیّر
+            'value'        => $values[$i],
+            'price'        => (int) ($prices[$i] ?? 0),
+            'quantity'     => (int) ($qtys[$i] ?? 0),
+            'sku'          => $skus[$i] ?? null,
+        ]);
+    }
 
 
 

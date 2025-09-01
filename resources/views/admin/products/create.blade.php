@@ -37,7 +37,7 @@
                     </div>
                     <div class="form-group col-md-3">
                         <label for="tag_ids">تگ‌ها</label>
-                        <select id="tag_ids" name="tag_ids[]" class="form-control selectpicker" multiple data-live-search="true" title="انتخاب تگ‌ها" value="{{ old('tag_ids') }}">
+                        <select id="tag_ids" name="tag_ids[]" class="form-control selectpicker" multiple data-live-search="true" title="انتخاب تگ‌ها" >
                             @foreach ($tags as $tag)
                                 <option value="{{ $tag->id }}">{{ $tag->name }}</option>
                             @endforeach

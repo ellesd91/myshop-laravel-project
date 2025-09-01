@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Models\ProductAttribute;
 use App\Models\ProductVariation;
+use App\Http\Controllers\Admin\ProductVariationController;
 
 class ProductController extends Controller
 {
@@ -47,97 +48,136 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'required',
-        //     'brand_id' => 'required',
-        //     'is_active' => 'required',
-        //     'tag_ids' => 'required',
-        //     'description' => 'required',
-        //     'primary_image' => 'required|mimes:jpg,jpeg,png,svg',
-        //     'images' => 'required',
-        //     'images.*' => 'mimes:jpg,jpeg,png,svg',
-        //     'category_id' => 'required',
-        //     'attributes_section' => 'required',
-        //     'attributes_section.*' => 'required',
-        //     'variation_values' => 'required',
-        //     'variation_values.*.*' => 'required', // چون 2 تا آرایه هست این کارو کردیم ما
-        //     'variation_values.price.*' => 'integer',
-        //     'variation_values.quantity.*' => 'integer',
-        //     'delivery_amount' => 'required|integer',
-        //     'delivery_amount_per_product' => 'nullable|integer',
-        // ]);
-
-     $productImageController = new ProductImageController();
-    $fileNameImages = $productImageController->upload($request->primary_image, $request->images);
-
-    // نتیجه‌ی create را در $product بگیر
-    $product = Product::create([
-        'name' => $request->name,
-        'brand_id' => $request->brand_id,
-        'category_id' => $request->category_id,
-        'primary_image' => $fileNameImages['fileNamePrimaryImage'],
-        'description' => $request->description,
-        'is_active' => $request->is_active,
-        'delivery_amount' => $request->delivery_amount,
-        'delivery_amount_per_product' => $request->delivery_amount_per_product,
-    ]);
-
-    // اگر گالری خالی بود، ارور نخورَد
-    foreach (($fileNameImages['fileNameImages'] ?? []) as $fileNameImage) {
-        ProductImage::create([
-            'product_id' => $product->id,
-            'image' => $fileNameImage,
+        $request->validate([
+            'name' => 'required',
+            'brand_id' => 'required',
+            'is_active' => 'required',
+            'tag_ids' => 'required',
+            'description' => 'required',
+            'primary_image' => 'required|mimes:jpg,jpeg,png,svg',
+            'images' => 'required',
+            'images.*' => 'mimes:jpg,jpeg,png,svg',
+            'category_id' => 'required',
+            'attributes_section' => 'required',
+            'attributes_section.*' => 'required',
+            'variation_values' => 'required',
+            'variation_values.*.*' => 'required', // چون 2 تا آرایه هست این کارو کردیم ما
+            'variation_values.price.*' => 'integer',
+            'variation_values.quantity.*' => 'integer',
+            'delivery_amount' => 'required|integer',
+            'delivery_amount_per_product' => 'nullable|integer',
         ]);
-    }
-    $ids  = $request->input('attribute_ids', []);
-    $vals = $request->input('attributes_section', []);
+         DB::beginTransaction();
+    try {
 
-    $attrs = [];
-    foreach ($ids as $i => $id) {
-        $val = $vals[$i] ?? null;
-        if ($id === null || $val === null || $val === '') continue;
-        $attrs[$id] = $val; // کلید = ID ویژگی، مقدار = متن واردشده
-    }
-    $productAttributeController = new ProductAttributeController();
-    $productAttributeController->store($attrs, $product);
+        $productImageController = new ProductImageController();
+        $fileNameImages = $productImageController->upload($request->primary_image, $request->images);
 
+        $product = Product::create([
+            'name' => $request->name,
+            'brand_id' => $request->brand_id,
+            'category_id' => $request->category_id,
+            'primary_image' => $fileNameImages['fileNamePrimaryImage'],
+            'description' => $request->description,
+            'is_active' => $request->is_active,
+            'delivery_amount' => $request->delivery_amount,
+            'delivery_amount_per_product' => $request->delivery_amount_per_product,
+        ]);
 
-    // 1) گرفتن attribute متغیّر از دسته‌بندی انتخابی
-    $variationAttr = Category::findOrFail($request->category_id)
-        ->attributes()
-        ->wherePivot('is_variation', 1)
-        ->first();
-
-    $variationAttributeId = $variationAttr?->id;
-
-    // 2) گرفتن مقادیر ورودی فرم
-    $values   = $request->input('variation_values.value', []);
-    $prices   = $request->input('variation_values.price', []);
-    $qtys     = $request->input('variation_values.quantity', []);
-    $skus     = $request->input('variation_values.sku', []);
-
-    // 3) ذخیره در جدول product_variations
-    $counter = count($values);
-
-    for ($i = 0; $i < $counter; $i++) {
-        if (($values[$i] ?? '') === '') {
-            continue; // ردیف خالی رد شود
+        foreach (($fileNameImages['fileNameImages'] ?? []) as $fileNameImage) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image' => $fileNameImage,
+            ]);
         }
 
-        ProductVariation::create([
-            'product_id'   => $product->id,          // محصولی که همین الان ساخته شد
-            'attribute_id' => $variationAttributeId, // attribute متغیّر
-            'value'        => $values[$i],
-            'price'        => (int) ($prices[$i] ?? 0),
-            'quantity'     => (int) ($qtys[$i] ?? 0),
-            'sku'          => $skus[$i] ?? null,
-        ]);
+        $ids  = $request->input('attribute_ids', []);
+        $vals = $request->input('attributes_section', []);
+
+        $attrs = [];
+        foreach ($ids as $i => $id) {
+            $val = $vals[$i] ?? null;
+            if ($id === null || $val === null || $val === '') continue;
+            $attrs[$id] = $val;
+        }
+
+        (new ProductAttributeController())->store($attrs, $product);
+
+        $attr = Category::findOrFail($request->category_id)
+            ->attributes()->wherePivot('is_variation', 1)->first();
+
+        app(ProductVariationController::class)
+            ->store($request->variation_values, $attr?->id, $product);
+
+        $product->tags()->attach($request->tag_ids);
+
+        DB::commit();
+        return redirect()->route('admin.products.index')
+            ->with('swal-success', 'محصول ایجاد شد');
+
+    } catch (\Throwable $ex) {
+        DB::rollBack();
+        return redirect()->back()
+            ->withInput()
+            ->with('swal-error', 'مشکل در ایجاد محصول');
     }
+}
+
+    //      try {
+    //         DB::beginTransaction();
+
+    //  $productImageController = new ProductImageController();
+    // $fileNameImages = $productImageController->upload($request->primary_image, $request->images);
+
+    // // نتیجه‌ی create را در $product بگیر
+    // $product = Product::create([
+    //     'name' => $request->name,
+    //     'brand_id' => $request->brand_id,
+    //     'category_id' => $request->category_id,
+    //     'primary_image' => $fileNameImages['fileNamePrimaryImage'],
+    //     'description' => $request->description,
+    //     'is_active' => $request->is_active,
+    //     'delivery_amount' => $request->delivery_amount,
+    //     'delivery_amount_per_product' => $request->delivery_amount_per_product,
+    // ]);
+
+    // // اگر گالری خالی بود، ارور نخورَد
+    // foreach (($fileNameImages['fileNameImages'] ?? []) as $fileNameImage) {
+    //     ProductImage::create([
+    //         'product_id' => $product->id,
+    //         'image' => $fileNameImage,
+    //     ]);
+    // }
+    // $ids  = $request->input('attribute_ids', []);
+    // $vals = $request->input('attributes_section', []);
+
+    // $attrs = [];
+    // foreach ($ids as $i => $id) {
+    //     $val = $vals[$i] ?? null;
+    //     if ($id === null || $val === null || $val === '') continue;
+    //     $attrs[$id] = $val; // کلید = ID ویژگی، مقدار = متن واردشده
+    // }
+    // $productAttributeController = new ProductAttributeController();
+    // $productAttributeController->store($attrs, $product);
 
 
+    // $attr = Category::findOrFail($request->category_id)->attributes()->wherePivot('is_variation', 1)->first();
+
+    // app(ProductVariationController::class)->store($request->variation_values, $attr?->id, $product);
+
+    // $product->tags()->attach($request->tag_ids);
 
 
-    }
+    //     } catch (\Throwable $ex) {
+    //         DB::rollBack();
+    //         return redirect()->back()->with('swal-error', 'مشکل در ایجاد محصول');
+
+    //     }
+
+    // return redirect()->route('admin.products.index')
+    // ->with('swal-success','محصول مورد نظر ایجاد شد');
+
+    // }
 
 
 

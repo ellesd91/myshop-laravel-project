@@ -14,13 +14,14 @@
     <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
+                <table class="table table-striped table-bordered table-hover" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>ردیف</th>
+                            <th>#</th>
                             <th>نام</th>
-                            <th>برند</th>
-                            <th>دسته‌بندی</th>
+                            <th>نام برند</th>
+                            <th>نام دسته بندی</th>
+                            <th>وضیعت</th>
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -28,15 +29,35 @@
                         @forelse ($products as $key => $product)
                             <tr>
                                 <td>{{ $products->firstItem() + $key }}</td>
-                                <td>{{ $product->name }}</td>
-                                <td>{{ $product->brand->name }}</td>
+                                <td>
+                                    <a href="{{route('admin.products.show' ,['product' => $product->id])}}">{{$product->name}}</a>
+                                </td>
+                                <td>
+                                    <a href="{{route('admin.brands.show' ,['brand' => $product->brand->id])}}">{{$product->brand->name}}</a>
+                                </td>
 
                                 <td>{{ $product->category->name }}</td>
+
                                 <td>
-                                    <a class="btn btn-sm btn-outline-warning" href="{{route('admin.products.show' , ['product' => $product->id])}}">نمایش</a>
-                                    <a class="btn btn-sm btn-outline-info mr-3" href="{{route('admin.products.edit' , ['product' => $product->id])}}">ویرایش</a>
+                                    <span class="badge {{ $product->is_active ? 'badge-success' : 'badge-danger' }}">
+                                        {{ $product->is_active ? 'فعال' : 'غیرفعال' }}
+                                    </span>
                                 </td>
-                            </tr>
+
+
+                               <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            عملیات
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right text-right">
+                                            <a href="#" class="dropdown-item">ویرایش محصول</a>
+                                            <a href="#" class="dropdown-item">ویرایش تصاویر</a>
+                                            <a href="#" class="dropdown-item">ویرایش دسته بندی و ویژگی</a>
+                                        </div>
+                                    </div>
+                                </td>
                         @empty
                             <tr>
                                 <td colspan="4" class="text-center">هیچ محصولی یافت نشد.</td>
@@ -47,7 +68,7 @@
             </div>
             {{-- نمایش لینک‌های صفحه‌بندی --}}
             <div class="mt-4 d-flex justify-content-center">
-                {{ $tags->links() }}
+                 {{ $products->links() }}  {{-- نه $product --}}
             </div>
         </div>
     </div>

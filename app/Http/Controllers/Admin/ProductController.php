@@ -27,6 +27,14 @@ class ProductController extends Controller
      */
     public function index()
     {
+        $products = Product::latest()->paginate(20);
+        return view('admin.products.index', compact('products'));
+
+    //     $products = \App\Models\Product::with(['brand:id,name', 'category:id,name'])
+    //     ->orderByDesc('id')
+    //     ->paginate(10);
+
+    // return view('admin.products.index', compact('products'));
 
     }
 
@@ -122,63 +130,6 @@ class ProductController extends Controller
             ->with('swal-error', 'مشکل در ایجاد محصول');
     }
 }
-
-    //      try {
-    //         DB::beginTransaction();
-
-    //  $productImageController = new ProductImageController();
-    // $fileNameImages = $productImageController->upload($request->primary_image, $request->images);
-
-    // // نتیجه‌ی create را در $product بگیر
-    // $product = Product::create([
-    //     'name' => $request->name,
-    //     'brand_id' => $request->brand_id,
-    //     'category_id' => $request->category_id,
-    //     'primary_image' => $fileNameImages['fileNamePrimaryImage'],
-    //     'description' => $request->description,
-    //     'is_active' => $request->is_active,
-    //     'delivery_amount' => $request->delivery_amount,
-    //     'delivery_amount_per_product' => $request->delivery_amount_per_product,
-    // ]);
-
-    // // اگر گالری خالی بود، ارور نخورَد
-    // foreach (($fileNameImages['fileNameImages'] ?? []) as $fileNameImage) {
-    //     ProductImage::create([
-    //         'product_id' => $product->id,
-    //         'image' => $fileNameImage,
-    //     ]);
-    // }
-    // $ids  = $request->input('attribute_ids', []);
-    // $vals = $request->input('attributes_section', []);
-
-    // $attrs = [];
-    // foreach ($ids as $i => $id) {
-    //     $val = $vals[$i] ?? null;
-    //     if ($id === null || $val === null || $val === '') continue;
-    //     $attrs[$id] = $val; // کلید = ID ویژگی، مقدار = متن واردشده
-    // }
-    // $productAttributeController = new ProductAttributeController();
-    // $productAttributeController->store($attrs, $product);
-
-
-    // $attr = Category::findOrFail($request->category_id)->attributes()->wherePivot('is_variation', 1)->first();
-
-    // app(ProductVariationController::class)->store($request->variation_values, $attr?->id, $product);
-
-    // $product->tags()->attach($request->tag_ids);
-
-
-    //     } catch (\Throwable $ex) {
-    //         DB::rollBack();
-    //         return redirect()->back()->with('swal-error', 'مشکل در ایجاد محصول');
-
-    //     }
-
-    // return redirect()->route('admin.products.index')
-    // ->with('swal-success','محصول مورد نظر ایجاد شد');
-
-    // }
-
 
 
 

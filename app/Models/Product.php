@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 use App\Models\Brand;
+use App\Models\ProductAttribute;
+use App\Models\Attribute;
 
 class Product extends Model
 {
@@ -34,5 +36,31 @@ class Product extends Model
     public function category() {
         return $this->belongsTo(\App\Models\Category::class);
     }
+
+    public function productAttributes()
+{
+    return $this->hasMany(ProductAttribute::class);
+}
+
+public function attribute()
+{
+    return $this->belongsTo(Attribute::class);
+}
+
+
+
+public function variations()
+{
+    return $this->hasMany(ProductVariation::class);
+}
+
+  public function getIsActiveAttribute($value)
+    {
+        return $value ? 'فعال' : 'غیرفعال';
+    }
+
+
+
+
 }
 

@@ -22,6 +22,8 @@
                             <th>نام برند</th>
                             <th>نام دسته بندی</th>
                             <th>وضیعت</th>
+                            <th>تگ</th>
+
                             <th>عملیات</th>
                         </tr>
                     </thead>
@@ -38,11 +40,19 @@
 
                                 <td>{{ $product->category->name }}</td>
 
-                                <td>
-                                    <span class="badge {{ $product->is_active ? 'badge-success' : 'badge-danger' }}">
-                                        {{ $product->is_active ? 'فعال' : 'غیرفعال' }}
+                               <td>
+                                    <span class="badge {{ $product->getRawOriginal('is_active') ? 'badge-success' : 'badge-danger' }}">
+                                        {{ $product->is_active }}
                                     </span>
                                 </td>
+
+
+                                <td>
+                                    @foreach($product->tags as $tag)
+                                        <span class="badge badge-info">{{ $tag->name }}</span>
+                                    @endforeach
+                                </td>
+
 
 
                                <td>
@@ -52,7 +62,7 @@
                                             عملیات
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right text-right">
-                                            <a href="#" class="dropdown-item">ویرایش محصول</a>
+                                            <a href="{{ route('admin.products.edit', ['product' => $product->id]) }}" class="dropdown-item">ویرایش محصول</a>
                                             <a href="#" class="dropdown-item">ویرایش تصاویر</a>
                                             <a href="#" class="dropdown-item">ویرایش دسته بندی و ویژگی</a>
                                         </div>
@@ -68,7 +78,7 @@
             </div>
             {{-- نمایش لینک‌های صفحه‌بندی --}}
             <div class="mt-4 d-flex justify-content-center">
-                 {{ $products->links() }}  {{-- نه $product --}}
+                 {{ $products->links() }}
             </div>
         </div>
     </div>

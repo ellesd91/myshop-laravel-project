@@ -27,15 +27,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(20);
+        $products = Product::with([
+            'brand:id,name',
+            'category:id,name',
+            'tags:id,name',
+        ])->latest()->paginate(20);
         return view('admin.products.index', compact('products'));
-
-    //     $products = \App\Models\Product::with(['brand:id,name', 'category:id,name'])
-    //     ->orderByDesc('id')
-    //     ->paginate(10);
-
-    // return view('admin.products.index', compact('products'));
-
     }
 
     /**
@@ -136,25 +133,70 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Product $product)
     {
-        //
+         $product->load([
+        'brand:id,name',
+        'category:id,name',
+        'productAttributes.attribute:id,name', // همین خط مهمه
+        'tags:id,name',
+    ]);
+        return view('admin.products.show', compact('product'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Product $product)
     {
-        //
-    }
+
+        $brands     = Brand::select('id','name')->get();
+        $categories = Category::select('id','name')->get();
+        $tags       = Tag::select('id','name')->get();
+
+        $product->load('tags:id');
+
+        return view('admin.products.edit', compact('product','brands','categories','tags'));
+   }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Product $product)
     {
-        //
+        $request->validate([
+        'name'                         => 'required|string|max:191',
+        'brand_id'                     => 'required|exists:brands,id',
+        'category_id'                  => 'required|exists:categories,id',
+        'is_active'                    => 'required|in:0,1',
+        'description'                  => 'required|string',
+        'delivery_amount'              => 'required|integer',
+        'delivery_amount_per_product'  => 'nullable|integer',
+        'tag_ids'                      => 'nullable|array',
+        'tag_ids.*'                    => 'exists:tags,id',
+    ]);
+
+    \DB::beginTransaction();
+    try {
+        $product->update([
+            'name'                        => $request->name,
+            'brand_id'                    => $request->brand_id,
+            'category_id'                 => $request->category_id,
+            'description'                 => $request->description,
+            'is_active'                   => $request->is_active,
+            'delivery_amount'             => $request->delivery_amount,
+            'delivery_amount_per_product' => $request->delivery_amount_per_product,
+        ]);
+
+        $product->tags()->sync($request->input('tag_ids', []));
+        \DB::commit();
+
+        return redirect()->route('admin.products.index')->with('swal-success','محصول ویرایش شد');
+    } catch (\Throwable $e) {
+        \DB::rollBack();
+        return back()->with('swal-error','خطا در ویرایش محصول')->withInput();
+    }
     }
 
     /**

@@ -14,7 +14,6 @@
 
             <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                {{-- ... بخش‌های بالایی فرم (نام، برند، وضعیت، تگ‌ها، توضیحات) ... --}}
                 <div class="form-row">
                     <div class="form-group col-md-3">
                         <label for="name">نام</label>

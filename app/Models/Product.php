@@ -36,16 +36,16 @@ class Product extends Model
     public function category() {
         return $this->belongsTo(\App\Models\Category::class);
     }
-
+    // برای نمایش اتربیوت ها و رابطه یک به چند داریم اینجا در پایین
     public function productAttributes()
 {
     return $this->hasMany(ProductAttribute::class);
 }
 
-public function attribute()
-{
-    return $this->belongsTo(Attribute::class);
-}
+// public function attribute()
+// {
+//     return $this->belongsTo(Attribute::class);
+// }
 
 
 
@@ -58,6 +58,12 @@ public function variations()
     {
         return $value ? 'فعال' : 'غیرفعال';
     }
+
+
+    public function images()
+{
+    return $this->hasMany(\App\Models\ProductImage::class);
+}
 
 
 

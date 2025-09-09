@@ -27,7 +27,7 @@
                 </div>
                 <div class="form-group col-md-3">
                     <label>تگ ها</label>
-                    <input class="form-control" type="text" value="{{ implode(', ', $product->tags->pluck('name')->toArray()) }}" disabled>
+                    <input class="form-control" type="text" value="{{ implode(', ', $product->tags->pluck('name')->toArray()) }}" disabled>0
                 </div>
 
                 <div class="form-group col-md-3">
@@ -161,6 +161,21 @@
                         class="img-thumbnail"
                         style="max-width: 200px; height: auto;">
                 </div>
+
+                @if($product->images->count())
+                    <div class="col-md-12 mt-3">
+                        <p>گالری تصاویر:</p>
+                    </div>
+                    <div class="col-md-12 d-flex flex-wrap">
+                        @foreach($product->images as $pi)
+                            <img src="{{ rtrim(env('PRODUCT_IMAGES_UPLOAD_PATH'), '/') . '/' . $pi->image }}"
+                                alt="gallery"
+                                class="img-thumbnail mr-2 mb-2"
+                                style="max-width: 180px; height: auto;">
+                        @endforeach
+                    </div>
+                @endif
+
 
                 {{-- دکمه بازگشت --}}
                 <a href="{{ route('admin.products.index') }}" class="btn btn-dark mt-5">بازگشت</a>

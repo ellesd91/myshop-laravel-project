@@ -121,3 +121,34 @@ function setLoading($el, text) {
     </div>
   `);
 }
+
+
+
+// init بعد از اینکه پلاگین پایینِ layout لود شد
+window.initMDP = function initMDP() {
+  const $ = window.jQuery;
+  if (!($ && $.fn && $.fn.MdPersianDateTimePicker)) return false; // هنوز لود نشده
+
+  $('input[name$="[date_on_sale_from]"], input[name$="[date_on_sale_to]"]').each(function () {
+    const $inp = $(this);
+    if (!$inp.attr('id')) $inp.attr('id', 'dtp_' + Math.random().toString(36).slice(2));
+    if ($inp.data('mdp')) return; // قبلاً اینیت شده
+
+    $inp.MdPersianDateTimePicker({
+      targetTextSelector: '#' + $inp.attr('id'),
+      textFormat: 'yyyy/MM/dd HH:mm:ss',
+      isGregorian: false,
+      enableTimePicker: true,
+      englishNumber: true,
+    });
+  });
+  return true;
+};
+
+// بعد از لود کامل صفحه، تلاش برای اینیت
+window.addEventListener('load', function () {
+  if (!window.initMDP()) {
+    // اگر پلاگین با تأخیر لود شد، یک بار دیگر تلاش کن
+    setTimeout(window.initMDP, 150);
+  }
+});

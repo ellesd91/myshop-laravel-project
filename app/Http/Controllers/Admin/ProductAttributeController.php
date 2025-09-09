@@ -18,4 +18,6 @@ class ProductAttributeController extends Controller
             ]);
         }
     }
+
+
 }

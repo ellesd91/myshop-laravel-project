@@ -1,18 +1,31 @@
-// resources/js/admin/admin.js
-
 // وارد کردن کتابخانه‌های اصلی
+console.log('[admin.js] loaded', !!window.jQuery);
 import $ from 'jquery';
 window.jQuery = window.$ = $;
 
 import 'bootstrap';
 import 'jquery.easing';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // (اگر از روش npm برای فونت آسام استفاده کردید)
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 import 'bootstrap-select/dist/js/i18n/defaults-fa_IR.js';
+
 import './category-form';
+
+// ⬅️ این ایمپورتِ قبلیِ پلاگین را حذف کن:
+// import 'md.bootstrappersiandatetimepicker/dist/jquery.md.bootstrap.datetimepicker.js';
+
+// ⬅️ و به‌جایش «داینامیک ایمپورت» زیر را بگذار تا بعد از ست‌شدن jQuery لود شود:
+// (async () => {
+//   await import('md.bootstrappersiandatetimepicker/dist/jquery.md.bootstrap.datetimepicker.js');
+//   console.log('[MDP] loaded →', typeof $.fn.MdPersianDateTimePicker);
+// })();
+
 import './product';
 import './files/jquery.czMore-latest.js';
+
+
+
 
 $(function () {
   const $cz = $('#czContainer');

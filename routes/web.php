@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
+use App\Http\Controllers\Admin\BannerController;
+
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -24,6 +26,7 @@ Route::resource('attributes', AttributeController::class);
 Route::resource('categories', CategoryController::class);
 Route::resource('tags', TagController::class);
 Route::resource('products', ProductController::class);
+Route::resource('banners', BannerController::class);
 Route::get('/category-attributes/{category}', [CategoryController::class, 'getCategoryAttributes']);
 
 

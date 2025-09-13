@@ -167,17 +167,14 @@ class CategoryController extends Controller
         //
     }
 
-   public function getCategoryAttributes(Category $category)
-    {
-        $attributes = $category->attributes()->wherePivot('is_variation', 0)->get();
-        $variation  = $category->attributes()->wherePivot('is_variation', 1)->first();
-
-        // نکته: کلید 'attrubtes' عمداً مثل ویدیو تایپ شده؛ JS همین را می‌خواند
-        return ['attrubtes' => $attributes, 'variation' => $variation];
-    }
-
-
+public function getCategoryAttributes(Category $category)
+{
+    $attributes = $category->attributes()->wherePivot('is_variation', 0)->get(['attributes.id','attributes.name']);
+    $variation  = $category->attributes()->wherePivot('is_variation', 1)->first(['attributes.id','attributes.name']);
+    return response()->json(['attributes'=>$attributes,'variation'=>$variation]);
+}
 
 
 
 }
+

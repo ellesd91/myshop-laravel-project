@@ -55,7 +55,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <input type="hidden" name="image_id" value="{{ $img->id }}">
-                                        <button class="btn btn-danger btn-sm btn-block" @if($isPrimary) disabled @endif>
+                                        <button class="btn btn-danger btn-sm btn-block" type="submit">
                                             حذف
                                         </button>
                                     </form>
@@ -82,23 +82,20 @@
                   method="POST" enctype="multipart/form-data" class="mt-4">
                 @csrf
                 <div class="row">
-                    <div class="form-group col-md-6">
-                        <label class="mb-2 d-block">تصویر اصلی</label>
-                        <input type="file" name="primary_image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
-                        <small class="text-muted d-block mt-1">
-                            اختیاری — در صورت انتخاب، تصویر اصلی جایگزین می‌شود (حذف ندارد).
-                        </small>
-                        @error('primary_image') <small class="text-danger">{{ $message }}</small> @enderror
+                    <div class="form-group col-md-4">
+                        <label for="primary_image">انتخاب تصویر اصلی</label>
+                        <div class="custom-file">
+                            <input type="file" name="primary_image" class="custom-file-input" id="primary_image">
+                            <label class="custom-file-label" for="primary_image">انتخاب فایل</label>
+                        </div>
                     </div>
 
-                    <div class="form-group col-md-6">
-                        <label class="mb-2 d-block">تصاویر محصول</label>
-                        <input type="file" name="images[]" class="form-control" multiple accept=".jpg,.jpeg,.png,.webp">
-                        <small class="text-muted d-block mt-1">
-                            می‌توانید چند فایل انتخاب کنید (قابل حذف و قابل تنظیم به‌عنوان اصلی).
-                        </small>
-                        @error('images') <small class="text-danger">{{ $message }}</small> @enderror
-                        @error('images.*') <small class="text-danger d-block">{{ $message }}</small> @enderror
+                    <div class="form-group col-md-4">
+                        <label for="images">انتخاب تصاویر</label>
+                        <div class="custom-file">
+                            <input type="file" name="images[]" multiple class="custom-file-input" id="images">
+                            <label class="custom-file-label" for="images">انتخاب فایل‌ها</label>
+                        </div>
                     </div>
                 </div>
 

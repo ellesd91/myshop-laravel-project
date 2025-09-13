@@ -48,53 +48,77 @@ class ProductImageController extends Controller
     return view('admin.products.edit_images', compact('product'));
 }
 
-public function add(Request $request, \App\Models\Product $product)
+public function add(Request $request, Product $product)
 {
     $request->validate([
-        'primary_image' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
-        'images'       => ['nullable','array'],
-        'images.*'     => ['image','mimes:jpg,jpeg,png,webp','max:2048'],
+        'primary_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        'images'        => 'nullable|array',
+        'images.*'      => 'image|mimes:jpg,jpeg,png,webp|max:2048',
     ]);
 
-    // مسیر پوشه داخل public؛ بدون اسلشِ اول و آخر (برای سازگاری با helper)
+    // اگر هیچ تصویری ارسال نشد
+    if (!$request->hasFile('primary_image') && !$request->hasFile('images')) {
+        return back()->withErrors(['msg' => 'انتخاب تصویر یا تصاویر محصول الزامی هست']);
+    }
+
     $dir = trim(env('PRODUCT_IMAGES_UPLOAD_PATH', '/upload/files/products/images/'), '/');
 
-    // 1) جایگزینی تصویر اصلی (در DB فقط "نام فایل" ذخیره می‌شود)
+    // جایگزینی تصویر اصلی (اختیاری)
     if ($request->hasFile('primary_image')) {
-        $old = $product->primary_image; // فقط نام فایل قدیمی
+        $oldPrimary = $product->primary_image;
 
-        $newName = upload_file_with_date($request->file('primary_image'), $dir);
-        $product->update(['primary_image' => $newName]);
+        try {
+            // در اینجا ما از هلپر استفاده کردیم دیگه با این که تابلو هست ولی گفتم
+            $newPrimaryName = upload_file_with_date($request->file('primary_image'), $dir);
+            $product->update(['primary_image' => $newPrimaryName]);
+        } catch (\Throwable $e) {
+            // اگر فایل جدید ذخیره شده بود ولی آپدیت DB شکست خورد، فایل را پاک کن
+            if (isset($newPrimaryName)) {
+                $newPath = public_path($dir . '/' . $newPrimaryName);
+                if (is_file($newPath)) { @unlink($newPath); }
+            }
+            return back()->withErrors(['msg' => 'آپلود/ذخیره تصویر اصلی ناموفق بود.']);
+        }
 
-        // حذف فایل فیزیکیِ قبلی (اگر وجود داشته باشد)
-        if ($old) {
-            $oldPath = public_path($dir.'/'.$old);
-            if (is_file($oldPath)) { @unlink($oldPath); }
+        // حذف فایل فیزیکی تصویر اصلی قبلی
+        if ($oldPrimary) {
+            $oldPrimaryPath = public_path($dir . '/' . $oldPrimary);
+            if (is_file($oldPrimaryPath)) { @unlink($oldPrimaryPath); }
         }
     }
 
-    // 2) افزودن تصاویر گالری (هر رکورد فقط نام فایل را نگه می‌دارد)
+    // افزودن تصاویر گالری (اختیاری)
     if ($request->hasFile('images')) {
-        foreach ($request->file('images') as $imgFile) {
-            $fileName = upload_file_with_date($imgFile, $dir);
+        $uploaded = [];
 
-            \App\Models\ProductImage::create([
-                'product_id' => $product->id,
-                'image'      => $fileName, // فقط نام فایل
-            ]);
+        try {
+            foreach ($request->file('images') as $imageFile) {
+                $fileName = upload_file_with_date($imageFile, $dir);
+                $uploaded[] = $fileName;
+
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image'      => $fileName,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // پاکسازی فایل‌های آپلودشده در همین مرحله اگر DB ایجاد رکورد شکست خورد
+            foreach ($uploaded as $name) {
+                $p = public_path($dir . '/' . $name);
+                if (is_file($p)) { @unlink($p); }
+            }
+            return back()->withErrors(['msg' => 'آپلود/ذخیره تصاویر گالری ناموفق بود.']);
         }
     }
 
     return redirect()
         ->route('admin.products.images.edit', $product->id)
-        ->with('swal-success', 'ویرایش تصاویر با موفقیت ثبت شد.');
+        ->with('swal-success', 'تصاویر با موفقیت ثبت شد.');
 }
-
-
 public function setPrimary(Request $request, Product $product)
 {
     $request->validate([
-        'image_id' => ['required','integer','exists:product_images,id'],
+        'image_id' => 'required|integer|exists:product_images,id',
     ]);
 
     // پیدا کردن عکس انتخاب‌شده از گالری همین محصول
@@ -102,26 +126,27 @@ public function setPrimary(Request $request, Product $product)
         ->where('product_id', $product->id)
         ->firstOrFail();
 
-    // ۱. اگر قبلاً محصول primary داشته، فایل فیزیکی‌اش رو پاک کن
-    $old = $product->primary_image;
-    if ($old) {
-        $dir = trim(env('PRODUCT_IMAGES_UPLOAD_PATH', '/upload/files/products/images/'), '/');
-        $oldPath = public_path($dir.'/'.$old);
+    // حذف فایل فیزیکی تصویر اصلی قبلی
+    $dir = trim(env('PRODUCT_IMAGES_UPLOAD_PATH', '/upload/files/products/images/'), '/');
+    if ($product->primary_image) {
+        $oldPath = public_path($dir.'/'.$product->primary_image);
         if (is_file($oldPath)) {
             @unlink($oldPath);
         }
     }
 
-    // ۲. تنظیم این عکس به عنوان primary_image
+    // تنظیم عکس جدید به عنوان primary_image
     $product->update([
         'primary_image' => $image->image,
     ]);
 
-    // ۳. حذف رکورد از جدول گالری
+    // حذف رکورد از جدول گالری
     $image->delete();
 
-    return back()->with('swal-success', 'تصویر انتخاب‌شده به‌عنوان تصویر اصلی ذخیره شد.');
+    return back()->with('swal-success', 'تصویر انتخاب‌شده به عنوان اصلی ذخیره شد.');
 }
+
+
 
 
 
@@ -131,28 +156,22 @@ public function destroy(Request $request, Product $product)
         'image_id' => ['required','integer','exists:product_images,id'],
     ]);
 
-    $image = \App\Models\ProductImage::where('id', $request->image_id)
+    // عکس باید متعلق به همین محصول باشد
+    $img = ProductImage::where('id', $request->image_id)
         ->where('product_id', $product->id)
         ->firstOrFail();
 
-    // اگر این عکس همون primary محصول باشه، اجازه حذف ندیم
-    if ($product->primary_image === $image->image) {
-        return back()->withErrors(['images' => 'امکان حذف تصویر اصلی وجود ندارد.']);
-    }
+    // حذف فایل از دیسک
+    $dir  = trim(env('PRODUCT_IMAGES_UPLOAD_PATH', '/upload/files/products/images/'), '/');
+    $path = public_path($dir . '/' . $img->image);
+    if (is_file($path)) { @unlink($path); }
 
-    // حذف فایل فیزیکی از پوشه public
-    $dir = trim(env('PRODUCT_IMAGES_UPLOAD_PATH', '/upload/files/products/images/'), '/');
-    $path = public_path($dir.'/'.$image->image);
+    // حذف رکورد از DB
+    $img->delete();
 
-    if (is_file($path)) {
-        @unlink($path);
-    }
-
-    // حذف رکورد از جدول
-    $image->delete();
-
-    return back()->with('swal-success', 'تصویر با موفقیت حذف شد.');
+    return back()->with('swal-success', 'تصویر حذف شد.');
 }
+
 
 
 

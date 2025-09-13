@@ -31,8 +31,10 @@ class CreateProductVariationsTable extends Migration
             $table->unsignedInteger('sale_price')->nullable();
             $table->timestamp('date_on_sale_from')->nullable();
             $table->timestamp('date_on_sale_to')->nullable();
+            $table->timestamp('deleted_at')->nullable();
 
             $table->timestamps();
+
         });
     }
 

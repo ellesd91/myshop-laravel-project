@@ -169,92 +169,6 @@ class ProductController extends Controller
 }
 
 
-
-    // public function editImages(Product $product)
-    // {
-    //     return view('admin.products.edit_images', compact('product'));
-    // }
-
-
-    /**
-     * Update the specified resource in storage.
-     */
-// public function update(Request $request, Product $product)
-// {
-//     // 1) تبدیل تاریخ‌های شمسیِ variation‌ها به میلادی
-//     $variationValues = $request->input('variation_values', []);
-//     foreach ($variationValues as $vid => $data) {
-//         $variationValues[$vid]['date_on_sale_from'] = $this->parseJalaliOrNull($data['date_on_sale_from'] ?? null);
-//         $variationValues[$vid]['date_on_sale_to']   = $this->parseJalaliOrNull($data['date_on_sale_to'] ?? null);
-//     }
-
-//     // 2) اعتبارسنجی روی دادهٔ «تبدیل‌شده»
-//     $payload = array_merge($request->all(), ['variation_values' => $variationValues]);
-
-//     Validator::make($payload, [
-//         'name'                           => 'required|string',
-//         'brand_id'                       => 'required|exists:brands,id',
-//         'category_id'                    => 'nullable|exists:categories,id',
-//         'is_active'                      => 'required|in:0,1',
-//         'tag_ids'                        => 'nullable|array',
-//         'tag_ids.*'                      => 'integer|exists:tags,id',
-//         'description'                    => 'required|string',
-//         'attribute_values'               => 'nullable|array',
-//         'variation_values'               => 'required|array',
-//         'variation_values.*.price'       => 'required|integer|min:0',
-//         'variation_values.*.quantity'    => 'required|integer|min:0',
-//         'variation_values.*.sku'         => 'nullable|string',
-//         'variation_values.*.sale_price'  => 'nullable|integer|min:0',
-//         // حالا چون تبدیل به میلادی شده‌اند، rule تاریخ OK است:
-//         'variation_values.*.date_on_sale_from' => 'nullable|date',
-//         'variation_values.*.date_on_sale_to'   => 'nullable|date|after_or_equal:variation_values.*.date_on_sale_from',
-//         'delivery_amount'                 => 'required|integer|min:0',
-//         'delivery_amount_per_product'     => 'nullable|integer|min:0',
-//     ])->validate();
-
-//     // 3) ذخیره اتمیک
-//     DB::transaction(function () use ($product, $payload) {
-//         $product->update([
-//             'name'                         => $payload['name'],
-//             'brand_id'                     => $payload['brand_id'],
-//             'category_id'                  => $payload['category_id'] ?? $product->category_id,
-//             'is_active'                    => (int) $payload['is_active'],
-//             'delivery_amount'              => (int) $payload['delivery_amount'],
-//             'delivery_amount_per_product'  => isset($payload['delivery_amount_per_product'])
-//                                                ? (int) $payload['delivery_amount_per_product'] : null,
-//             'description'                  => $payload['description'],
-//         ]);
-
-//         // تگ‌ها (اجباری نبودن‌شان منطقی‌تر است)
-//         $product->tags()->sync($payload['tag_ids'] ?? []);
-
-//         // ویژگی‌ها
-//         foreach (($payload['attribute_values'] ?? []) as $paId => $val) {
-//             \App\Models\ProductAttribute::where('product_id', $product->id)
-//                 ->where('id', (int) $paId)
-//                 ->update(['value' => $val]);
-//         }
-
-//         // وارییشن‌ها
-//         foreach ($payload['variation_values'] as $varId => $data) {
-//             \App\Models\ProductVariation::where('product_id', $product->id)
-//                 ->where('id', (int) $varId)
-//                 ->update([
-//                     'price'             => (int)($data['price'] ?? 0),
-//                     'quantity'          => (int)($data['quantity'] ?? 0),
-//                     'sku'               => $data['sku'] ?? null,
-//                     'sale_price'        => ($data['sale_price'] ?? '') !== '' ? (int)$data['sale_price'] : null,
-//                     'date_on_sale_from' => $data['date_on_sale_from'] ?? null, // الان میلادی است
-//                     'date_on_sale_to'   => $data['date_on_sale_to'] ?? null,   // الان میلادی است
-//                 ]);
-//         }
-//     });
-
-//     return redirect()
-//         ->route('admin.products.edit', $product->id)
-//         ->with('swal-success', 'ویرایش محصول انجام شد');
-// }
-
 public function update(Request $request, Product $product)
 {
     // ۱) تبدیل تاریخ شمسی → میلادی
@@ -326,7 +240,7 @@ public function update(Request $request, Product $product)
     });
 
     return redirect()
-        ->route('admin.products.edit', $product->id)
+        ->route('admin.products.index', $product->id)
         ->with('swal-success', 'ویرایش محصول با موفقیت انجام شد.');
 }
 
@@ -351,4 +265,53 @@ private function parseJalaliOrNull(?string $value): ?string
     {
         //
     }
+
+public function editCategory(Product $product)
+{
+    $categories = Category::where('parent_id', '!=', 0)->get();
+
+    return view('admin.products.edit_category', compact('product', 'categories'));
+}
+
+public function updateCategory(Request $request, Product $product)
+{
+    $request->validate([
+        'category_id' => 'required',
+        'variation_values' => 'required',
+        'variation_values.*.*' => 'required',
+        'variation_values.price.*' => 'integer',
+        'variation_values.quantity.*' => 'integer',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        // آپدیت دسته‌بندی
+        $product->update([
+            'category_id' => $request->category_id,
+        ]);
+
+        // ذخیره ویژگی‌ها
+        $attrs = $request->input('attribute_ids', []);
+        (new ProductAttributeController())->change($attrs, $product);
+
+        // ذخیره مقادیر متغیرها
+        $category = Category::findOrFail($request->category_id);
+        $variation = $category->attributes()->wherePivot('is_variation', 1)->first();
+
+        app(ProductVariationController::class)
+            ->change($request->variation_values, $variation?->id, $product);
+
+        DB::commit();
+
+        return redirect()->route('admin.products.index')
+            ->with('swal-success', 'دسته‌بندی و ویژگی‌ها با موفقیت ویرایش شد.');
+
+    } catch (\Throwable $ex) {
+        DB::rollBack();
+        return redirect()->back()
+            ->withInput()
+            ->with('swal-error', 'مشکل در ویرایش دسته‌بندی و ویژگی‌ها.');
+    }
+}
 }

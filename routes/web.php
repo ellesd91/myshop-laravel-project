@@ -33,6 +33,11 @@ Route::post('/products/{product}/images-add', [ProductImageController::class, 'a
 Route::delete('/products/{product}/images-destroy', [ProductImageController::class, 'destroy'])->name('products.images.destroy');
 Route::put('/products/{product}/images-set-primary', [ProductImageController::class, 'setPrimary'])->name('products.images.set_primary');
 
+//edit product category
+Route::get('/products/{product}/category-edit', [ProductController::class, 'editCategory'])->name('products.category.edit');
+Route::put('/products/{product}/category-update', [ProductController::class, 'updateCategory'])->name('products.category.update');
+
+
 
 });
 

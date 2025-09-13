@@ -29,4 +29,26 @@ class ProductVariationController extends Controller
             ]);
         }
     }
+
+    public function change($variations, $attributeId, $product): void
+    {
+        ProductVariation::where('product_id', $product->id)->delete();
+        $count = count($variations['value']);
+
+        for ($i = 0; $i < $count; $i++) {
+            $value = $variations['value'][$i] ?? '';
+            if ($value === '') continue;
+
+            ProductVariation::create([
+                'attribute_id' => $attributeId,
+                'product_id'   => $product->id,
+                'value'        => $value,
+                'price'        => (int)($variations['price'][$i] ?? 0),
+                'quantity'     => (int)($variations['quantity'][$i] ?? 0),
+                'sku'          => $variations['sku'][$i] ?? null,
+            ]);
+        }
+    }
 }
+
+

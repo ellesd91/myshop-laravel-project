@@ -7,7 +7,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Webprog.ir @yield('title')</title>
+  <title>ellesd91 @yield('title')</title>
 
   {{-- استایل پلاگین --}}
   <link rel="stylesheet" href="{{ asset('css/jquery.md.bootstrap.datetimepicker.style.css') }}">

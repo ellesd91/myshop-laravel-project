@@ -4,16 +4,17 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BrandController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController;
-
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\BannerController;
 
+use App\Http\Controllers\Home\HomeController;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+
+// Route::get('/', function () {
+//     return redirect()->route('dashboard');
+// });
 
 Route::get('/admin-panel/dashboard', function () {
     return view('admin.dashboard');
@@ -29,7 +30,6 @@ Route::resource('products', ProductController::class);
 Route::resource('banners', BannerController::class);
 Route::get('/category-attributes/{category}', [CategoryController::class, 'getCategoryAttributes']);
 
-
 // Edit Product Images
 Route::get('/products/{product}/images-edit', [ProductImageController::class, 'edit'])->name('products.images.edit');
 Route::post('/products/{product}/images-add', [ProductImageController::class, 'add'])->name('products.images.add');
@@ -39,10 +39,9 @@ Route::put('/products/{product}/images-set-primary', [ProductImageController::cl
 //edit product category
 Route::get('/products/{product}/category-edit', [ProductController::class, 'editCategory'])->name('products.category.edit');
 Route::put('/products/{product}/category-update', [ProductController::class, 'updateCategory'])->name('products.category.update');
-
-
-
 });
+
+Route::get('/' , [HomeController::class , 'index']);
 
 
 

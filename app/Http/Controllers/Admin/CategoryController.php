@@ -8,6 +8,7 @@ use App\Models\Attribute;
 use Illuminate\Console\View\Components\Alert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\alert;
 
@@ -39,52 +40,52 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'slug' => 'required|unique:categories,slug',
-            'parent_id' => 'required',
-            'attribute_ids' => 'required',
-            'attribute_is_filter_ids' => 'required',
-            'variation_id' => 'required',
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required',
+        'slug' => 'required|unique:categories,slug',
+        'parent_id' => 'required',
+        'attribute_ids' => 'required',
+        'attribute_ids.*' => 'exists:attributes,id',
+        'attribute_is_filter_ids' => 'required',
+        'attribute_is_filter_ids.*' => 'exists:attributes,id',
+        'variation_id' => 'required|exists:attributes,id',
+    ]);
 
+    try {
+        DB::beginTransaction();
 
-
-        ]);
-
-        try {
-            DB::beginTransaction();
-          $category=Category::create([
-            'name' => $request->name ,
-            'slug' => $request->slug ,
-            'parent_id' => $request->parent_id ,
-            'is_active' => $request->is_active,
-            'icon' => $request->icon,
-            'description'=> $request->description,
+        $category = Category::create([
+            'name'        => $request->name,
+            'slug'        => $request->slug,
+            'parent_id'   => $request->parent_id,
+            // 'is_active'   => $request->is_active,
+            'icon'        => $request->icon,
+            'description' => $request->description,
         ]);
 
         foreach ($request->attribute_ids as $attributeId) {
-            $attribute=Attribute::findOrFail($attributeId);
-            $attribute->categories()->attach($category->id , [
-                'is_filter' => in_array($attributeId, $request->attribute_is_filter_ids) ? 1 : 0,
-                'is_variation' => $request->variation_id == $attributeId ? 1 : 0,
+            $attribute = Attribute::findOrFail($attributeId);
+            $attribute->categories()->attach($category->id, [
+                'is_filter'    => in_array($attributeId, $request->attribute_is_filter_ids) ? 1 : 0,
+                'is_variation' => ($request->variation_id == $attributeId) ? 1 : 0,
             ]);
-
-       }
-
-       DB::commit();
-       return redirect()->route('admin.categories.index')
-        ->with('swal-success', 'دسته بندی با موفقیت ایجاد شد.');
-
-
-        } catch (\Throwable $ex) {
-            DB::rollBack();
-            return redirect()->back()->with('swal-error', 'مشکل در ایجاد دسته بندی');
-
         }
 
+        DB::commit();
+
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('swal-success', 'دسته‌بندی با موفقیت ایجاد شد.');
+    } catch (\Throwable $ex) {
+        DB::rollBack();
+        Log::error('Category create failed', ['error' => $ex->getMessage()]);
+        return redirect()
+            ->back()
+            ->with('swal-error', 'مشکلی در ایجاد دسته‌بندی رخ داد.');
     }
+}
 
     /**
      * Display the specified resource.
@@ -124,8 +125,10 @@ class CategoryController extends Controller
             'slug' => 'required|unique:categories,slug,' . $category->id,
             'parent_id' => 'required',
             'attribute_ids' => 'required',
+            'attribute_ids.*' => 'exists:attributes,id',
             'attribute_is_filter_ids' => 'required',
-            'variation_id' => 'required',
+            'attribute_is_filter_ids.*' => 'exists:attributes,id',
+            'variation_id' => 'required|exists:attributes,id',
         ]);
 
         try {
@@ -135,7 +138,6 @@ class CategoryController extends Controller
                 'name' => $request->name,
                 'slug' => $request->slug,
                 'parent_id' => $request->parent_id,
-                'is_active' => $request->is_active,
                 'icon' => $request->icon,
                 'description' => $request->description,
             ]);

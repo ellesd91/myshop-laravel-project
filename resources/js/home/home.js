@@ -1,5 +1,6 @@
 import 'bootstrap';
 
+import './files/rating.js';
 import Swal from 'sweetalert2';
 window.Swal = Swal; // این خط اختیاری است اما باعث می‌شود بتوانی از Swal در همه جا استفاده کنی
 

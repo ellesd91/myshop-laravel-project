@@ -27,6 +27,8 @@
 
         @yield('content')
 
+        @yield('script')
+
         @include('home.sections.footer')
 
 

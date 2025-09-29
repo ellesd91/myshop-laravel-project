@@ -100,7 +100,7 @@
             @foreach ($productAttributes as $productAttribute)
                 <div class="col-12 col-md-4">
                     <div class="form-group mb-3">
-                        <label>{{ $productAttribute->attribute->name }}</label>
+                        <label>{{ optional($productAttribute->attribute)->name ?? '-' }}</label>
                         <input class="form-control"
                             type="text"
                             name="attribute_values[{{ $productAttribute->id }}]"

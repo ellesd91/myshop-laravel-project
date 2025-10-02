@@ -21,6 +21,14 @@ public function categories()
                 ->withPivot('is_variation');
 }
 
-
+public function values()
+{
+    return $this->hasMany(ProductAttribute::class)->select('attribute_id', 'value')->distinct();
 }
 
+public function variationValues()
+{
+    return $this->hasMany(ProductVariation::class)->select('attribute_id', 'value')->distinct();
+}
+
+}

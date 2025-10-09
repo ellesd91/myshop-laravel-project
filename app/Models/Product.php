@@ -44,11 +44,6 @@ class Product extends Model
     return $this->hasMany(ProductAttribute::class);
 }
 
-// public function attribute()
-// {
-//     return $this->belongsTo(Attribute::class);
-// }
-
 
 
 public function variations()
@@ -59,6 +54,72 @@ public function variations()
 public function getIsActiveAttribute($value)
     {
         return $value ? 'فعال' : 'غیرفعال';
+    }
+
+
+public function scopeFilter($query)
+    {
+
+        if(request()->has('attribute')){
+            foreach(request()->attribute as $attribue){
+                $query->whereHas('productAttributes' , function($query) use($attribue){
+                    foreach(explode('-' , $attribue) as $index => $item){
+                        if($index == 0){
+                            $query->where('value' , $item);
+                        }else{
+                            $query->orWhere('value' , $item);
+                        }
+                    }
+                });
+            }
+        }
+
+        if(request()->has('variation')){
+            $query->whereHas('variations' , function($query){
+                foreach(explode('-' , request()->variation) as $index => $variation){
+                    if($index == 0){
+                        $query->where('value' , $variation);
+                    }else{
+                        $query->orWhere('value' , $variation);
+                    }
+                }
+            });
+        }
+
+         if(request()->has('sortBy')){
+            $sortBy = request()->sortBy;
+
+            switch($sortBy){
+                case 'max':
+                    $query->orderByDesc(ProductVariation::select('price')->whereColumn('product_variations.product_id' , 'products.id')->orderBy('sale_price', 'desc')->take(1));
+                    break;
+                case 'min':
+                    $query->orderBy(ProductVariation::select('price')->whereColumn('product_variations.product_id' , 'products.id')->orderBy('sale_price', 'desc')->take(1));
+                    break;
+                case 'latest':
+                    $query->latest();
+                    break;
+                case 'oldest':
+                    $query->oldest();
+                    break;
+                default:
+                    $query;
+                    break;
+            }
+        }
+
+        return $query;
+    }
+
+//برای جستجو
+ public function scopeSearch($query)
+    {
+        $keyword = request()->search;
+        if (request()->has('search') && trim($keyword) != '') {
+            $query->where('name', 'LIKE', '%'. trim($keyword) .'%');
+        }
+
+        return $query;
     }
 
 

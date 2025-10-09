@@ -79,9 +79,9 @@
         title="انتخاب تگ‌ها">
 
             @foreach($tags as $tag)
-            <option value="{{ $tag->id }}" {{ in_array($tag->id, $selected) ? 'selected' : '' }}>
-                {{ $tag->name }}
-            </option>
+                <option value="{{ $tag->id }}" {{ in_array($tag->id, $selected) ? 'selected' : '' }}>
+                    {{ $tag->name }}
+                </option>
             @endforeach
         </select>
 
@@ -89,7 +89,7 @@
         </div>
         <hr>
 
-      </div>
+        </div>
         {{-- Attributes Section --}}
         <div class="col-md-12">
             <hr>

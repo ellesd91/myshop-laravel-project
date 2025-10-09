@@ -198,6 +198,7 @@ public function update(Request $request, Product $product)
         'variation_values.*.date_on_sale_to'   => 'nullable|date|after_or_equal:variation_values.*.date_on_sale_from',
         'delivery_amount' => 'required|integer|min:0',
         'delivery_amount_per_product' => 'nullable|integer|min:0',
+        'attribute_values.*' => 'nullable|string|max:255',
     ])->validate();
 
     // ۳) ذخیره اتمیک
@@ -218,11 +219,18 @@ public function update(Request $request, Product $product)
         $product->tags()->sync($payload['tag_ids'] ?? []);
 
         // ویژگی‌ها
-        foreach (($payload['attribute_values'] ?? []) as $paId => $value) {
-            if ($attribute = $product->productAttributes()->find($paId)) {
-                $attribute->update(['value' => $value]);
-            }
-        }
+       foreach (($payload['attribute_values'] ?? []) as $paId => $value) {
+    // اگر کاربر فیلد را خالی گذاشته → رکورد ویژگیِ محصول حذف شود
+    if ($value === null || $value === '') {
+        $product->productAttributes()->whereKey($paId)->delete();
+        continue;
+    }
+
+    // در غیر این صورت، مقدار به‌روزرسانی شود
+    $product->productAttributes()->whereKey($paId)->update([
+        'value' => $value,
+    ]);
+}
 
         // وارییشن‌ها
         foreach ($payload['variation_values'] as $varId => $data) {

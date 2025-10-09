@@ -88,3 +88,40 @@ body {
   font-size: 11px;
   color: red;
 }
+
+
+.select-caret {
+  position: relative;
+  display: inline-block;
+}
+
+.select-caret select {
+  /* فلش پیش‌فرض مرورگر رو مخفی کن */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* چون جهت RTL هست، پَد چپ رو زیاد می‌کنیم تا جا برای فلش باز بشه */
+  padding-left: 2rem;
+}
+
+/* فلش سفارشی */
+.select-caret::after {
+  content: "▾";            /* می‌تونی "▼" هم بذاری */
+  position: absolute;
+  left: .6rem;             /* RTL: فلش سمت چپ */
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;    /* کلیک از فلش عبور کنه و سلکت باز شه */
+  font-size: .9rem;
+  line-height: 1;
+  transition: transform .2s ease;
+}
+
+/* وقتی سلکت فوکوس می‌گیره، فلش برگرده (حس باز شدن) */
+.select-caret:focus-within::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* برای IE/Edge خیلی قدیمی */
+select::-ms-expand { display: none; }
+

@@ -14,7 +14,7 @@ class BannerController extends Controller
      */
     public function index()
     {
-        $banners = Banner::latest()->paginate(10);
+        $banners = Banner::latest()->paginate(5);
 
      // ۲. ارسال داده‌ها به ویو
         return view('admin.banners.index', compact('banners'));
